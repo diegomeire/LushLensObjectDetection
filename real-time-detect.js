@@ -301,7 +301,6 @@ function checkDetectedProduct() {
 				}
 			}
 			if (!found){
-				console.log(node.textContent)
 				buttonStack.removeChild(node);
 			}
 

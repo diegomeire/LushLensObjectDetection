@@ -69,16 +69,15 @@ img {
 	bottom: 50px;
 	transform: translate(-50%, 0%);
 	z-index: 999;
-	width: 50%;
+	width: 90%;
 }
 
 
 .button-stack button {
     width: 100%;
-    padding: 10px;
+	
     font-size: 16px;
-    margin-bottom: 10px; /* Optional: Adds space between buttons */
-
+	height: 50px;
 }
 
 
