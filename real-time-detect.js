@@ -101,10 +101,10 @@ async function detect(videoElement) {
 	        inferenceResults(boxes, classes, scores, n, frame);
 			
 		} catch (error) {
-			requestAnimationFrame(processFrame);
+			
 		}
 
-        
+        requestAnimationFrame(processFrame);
     }
 
     processFrame();
