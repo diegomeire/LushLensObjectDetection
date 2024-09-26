@@ -78,27 +78,33 @@ async function detect(videoElement) {
     }
 
     async function processFrame() {
-        const frame = await grabFrame(videoElement);
-
-        if (!frame) {
-            requestAnimationFrame(processFrame);
-            return;
-        }
-
-        let input = tf.image.resizeBilinear(tf.browser.fromPixels(frame), [192, 192]);
-        input = tf.cast(tf.expandDims(input), 'int32');
-
-        // Run the inference and get the output tensors.
-        let result = await objectDetector.predict(input);
-
-        let boxes = Array.from(await result[Object.keys(result)[0]].data());
-        let classes = Array.from(await result[Object.keys(result)[1]].data())
-        let scores = Array.from(await result[Object.keys(result)[2]].data())
-        let n = Array.from(await result[Object.keys(result)[3]].data())
 		
-        inferenceResults(boxes, classes, scores, n, frame);
+		try{
+	        const frame = await grabFrame(videoElement);
 
-        requestAnimationFrame(processFrame);
+	        if (!frame) {
+	            requestAnimationFrame(processFrame);
+	            return;
+	        }
+
+	        let input = tf.image.resizeBilinear(tf.browser.fromPixels(frame), [192, 192]);
+	        input = tf.cast(tf.expandDims(input), 'int32');
+
+	        // Run the inference and get the output tensors.
+	        let result = await objectDetector.predict(input);
+
+	        let boxes = Array.from(await result[Object.keys(result)[0]].data());
+	        let classes = Array.from(await result[Object.keys(result)[1]].data())
+	        let scores = Array.from(await result[Object.keys(result)[2]].data())
+	        let n = Array.from(await result[Object.keys(result)[3]].data())
+		
+	        inferenceResults(boxes, classes, scores, n, frame);
+			
+		} catch (error) {
+			requestAnimationFrame(processFrame);
+		}
+
+        
     }
 
     processFrame();

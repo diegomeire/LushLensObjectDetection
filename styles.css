@@ -26,7 +26,6 @@ img {
 }
 
 .label {
-    background-color: red;
     color: white;
     height: 22px;
     line-height: 22px;
@@ -50,7 +49,6 @@ img {
 }
 
 .container{
-	background: red;
 	left: 50%;
 }
 
