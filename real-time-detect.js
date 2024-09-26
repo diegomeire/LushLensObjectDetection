@@ -80,6 +80,7 @@ async function detect(videoElement) {
     async function processFrame() {
 		
 		try{
+			console.log("processFrame")
 	        const frame = await grabFrame(videoElement);
 
 	        if (!frame) {
