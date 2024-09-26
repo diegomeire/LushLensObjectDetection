@@ -79,31 +79,26 @@ async function detect(videoElement) {
 
     async function processFrame() {
 		
-		try{
-	        const frame = await grabFrame(videoElement);
+	    const frame = await grabFrame(videoElement);
 
-	        if (!frame) {
-	            requestAnimationFrame(processFrame);
-	            return;
-	        }
+	    if (!frame) {
+	        requestAnimationFrame(processFrame);
+	        return;
+	    }
 
-	        let input = tf.image.resizeBilinear(tf.browser.fromPixels(frame), [192, 192]);
-	        input = tf.cast(tf.expandDims(input), 'int32');
+	    let input = tf.image.resizeBilinear(tf.browser.fromPixels(frame), [192, 192]);
+	    input = tf.cast(tf.expandDims(input), 'int32');
 
-	        // Run the inference and get the output tensors.
-	        let result = await objectDetector.predict(input);
+	    // Run the inference and get the output tensors.
+	    let result = await objectDetector.predict(input);
 
-	        let boxes = Array.from(await result[Object.keys(result)[0]].data());
-	        let classes = Array.from(await result[Object.keys(result)[1]].data())
-	        let scores = Array.from(await result[Object.keys(result)[2]].data())
-	        let n = Array.from(await result[Object.keys(result)[3]].data())
+	    let boxes = Array.from(await result[Object.keys(result)[0]].data());
+	    let classes = Array.from(await result[Object.keys(result)[1]].data())
+	    let scores = Array.from(await result[Object.keys(result)[2]].data())
+	    let n = Array.from(await result[Object.keys(result)[3]].data())
 		
-	        inferenceResults(boxes, classes, scores, n, frame);
+	    inferenceResults(boxes, classes, scores, n, frame);
 			
-		} catch (error) {
-			console.log("error: " + error)
-			
-		}
 
         requestAnimationFrame(processFrame);
     }
@@ -111,6 +106,8 @@ async function detect(videoElement) {
     processFrame();
 }
 
+
+/*
 async function grabFrame(videoElement) {
     const imageCapture = new ImageCapture(videoElement.srcObject.getVideoTracks()[0]);
     try {
@@ -119,6 +116,45 @@ async function grabFrame(videoElement) {
         console.error("Error grabbing frame:", error);
         return null;
     }
+}
+
+*/
+
+async function grabFrame(videoElement) {
+    // Check if ImageCapture is supported
+  /*  if ('ImageCapture' in window) {
+        try {
+            const imageCapture = new ImageCapture(videoElement.srcObject.getVideoTracks()[0]);
+            return await imageCapture.grabFrame(); // Use ImageCapture API if available
+        } catch (error) {
+            console.error("Error grabbing frame with ImageCapture:", error);
+        }
+    }*/
+    
+    // Fallback method using canvas if ImageCapture is not available or fails
+    return captureFromCanvas(videoElement);
+}
+
+function captureFromCanvas(videoElement) {
+    const canvas = document.createElement('canvas');
+
+    // Ensure video is ready and has valid dimensions
+    const videoWidth = videoElement.videoWidth;
+    const videoHeight = videoElement.videoHeight;
+
+    if (videoWidth === 0 || videoHeight === 0) {
+        console.error("Video dimensions are not valid.");
+        return null; // Return null to indicate failure
+    }
+
+    canvas.width = videoWidth;
+    canvas.height = videoHeight;
+
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+    // Get the image data (similar to grabFrame)
+    return ctx.getImageData(0, 0, canvas.width, canvas.height);
 }
 
 // Render and inference the detection results.
