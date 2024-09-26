@@ -1,27 +1,20 @@
 // Define labels of the TF Lite model.
 const classLabels = {};
 
-/*
-    0: "Open Litter",
-    1: "Overflow Dustbin",
-    2: "Plastic Waste",
-    3: "Biodegradable Waste",
-    4: "Medical Waste"
-};*/
-
 // Define colours for the labels.
 const classColors = {};
-/*    "Open Litter": "#F44336",
-    "Overflow Dustbin": "#388E3C",
-    "Plastic Waste": "#2979FF",
-    "Biodegradable Waste": "#E040FB",
-    "Medical Waste": "#FF6D00"
-};*/
+
+let detectedProducts = [];
+
 
 // Define max no. of detections per image, threshold and model path.
 const MAX_DETECTIONS = 5;
 const THRESHOLD = 0.4;
 const MODEL_PATH = "./model/lush_naked.tflite";
+
+const FRAME_COUNT_THRESHOLD = 15;
+
+const SECONDS_THRESHOLD = 1000;
 
 let objectDetector;
 
@@ -59,6 +52,8 @@ async function loadProductNames() {
 async function startCamera() {
     const videoElement = document.querySelector('.video');
 	
+	removeAllChildren();
+	
 	await loadProductNames();
 	
     try {
@@ -69,6 +64,15 @@ async function startCamera() {
     } catch (error) {
         console.error("Error accessing webcam:", error);
     }
+}
+
+async function removeAllChildren(){
+	const buttonStack = document.querySelector('.button-stack');
+	if (buttonStack != undefined){
+		while (buttonStack.firstChild) {
+		    buttonStack.removeChild(buttonStack.firstChild);
+		}		
+	}
 }
 
 // Detect objects in the video feed.
@@ -195,6 +199,28 @@ function inferenceResults(boxes, classes, scores, n, frame) {
                 score,
                 color
             );
+			
+			let found = false
+			for (let j = 0; j < detectedProducts.length; j++){
+				if (detectedProducts[j].className == className){
+					let count = detectedProducts[j].count + 1;
+					detectedProducts[j] = {
+						className: className,
+						count: count,
+						lastTime: Date.now()
+					};
+					found = true
+				}
+			}
+			if (!found){
+				detectedProducts.push({
+					className: className,
+					count: 1,
+					lastTime: Date.now()
+				})	
+			}
+			
+			
             boxesContainer.appendChild(boxContainer);
         }
     }
@@ -232,6 +258,63 @@ function drawBoundingBoxes(left, top, width, height, className, score, color) {
 
     return container;
 }
+
+
+function checkDetectedProduct() {
+
+	const buttonStack = document.querySelector('.button-stack');
+	
+	detectedProducts = detectedProducts.filter(product => {
+	    const currentTime = Date.now();
+	    return ((currentTime - product.lastTime) <= SECONDS_THRESHOLD); // Keep only if less than 2 seconds old
+	});
+	
+	for (let i = 0; i < detectedProducts.length; i++){
+		if (detectedProducts[i].count > FRAME_COUNT_THRESHOLD){
+			
+			let found = false
+			
+			buttonStack.childNodes.forEach((node) => {
+			    if (node.nodeType === Node.ELEMENT_NODE) { // Check if it's an element
+			        if (node.textContent == detectedProducts[i].className){
+						found = true;
+					}
+			    }
+			});
+			
+
+			if (!found){
+	            const newButton = document.createElement('button');
+	            newButton.textContent = detectedProducts[i].className;
+	            buttonStack.appendChild(newButton);				
+			}
+		}
+	}
+	
+	buttonStack.childNodes.forEach((node) => {
+	    if (node.nodeType === Node.ELEMENT_NODE) { // Check if it's an element
+
+			let found = false;
+			for (let j = 0; j < detectedProducts.length; j++){
+				if (node.textContent == detectedProducts[j].className){
+					found = true;
+				}
+			}
+			if (!found){
+				console.log(node.textContent)
+				buttonStack.removeChild(node);
+			}
+
+	    }
+	});
+	
+	
+    // Schedule the next frame
+    requestAnimationFrame(checkDetectedProduct);
+}
+
+// Start the frame processing loop
+requestAnimationFrame(checkDetectedProduct);
 
 startCamera();
 
