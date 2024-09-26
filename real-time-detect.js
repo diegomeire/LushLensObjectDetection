@@ -80,7 +80,6 @@ async function detect(videoElement) {
     async function processFrame() {
 		
 		try{
-			console.log("processFrame")
 	        const frame = await grabFrame(videoElement);
 
 	        if (!frame) {
@@ -102,6 +101,7 @@ async function detect(videoElement) {
 	        inferenceResults(boxes, classes, scores, n, frame);
 			
 		} catch (error) {
+			console.log("error: " + error)
 			
 		}
 
