@@ -260,6 +260,15 @@ function drawBoundingBoxes(left, top, width, height, className, score, color) {
 }
 
 
+function triggerAndroidCallback() {
+    if (typeof Android !== 'undefined') {
+        Android.onCustomEvent("This is a custom event from the web page!");
+    } else {
+        console.log("Android interface not available.");
+    }
+}
+
+
 function checkDetectedProduct() {
 
 	const buttonStack = document.querySelector('.button-stack');
@@ -285,8 +294,14 @@ function checkDetectedProduct() {
 
 			if (!found){
 	            const newButton = document.createElement('button');
+
+                
 	            newButton.textContent = detectedProducts[i].className;
 	            buttonStack.appendChild(newButton);				
+                newButton.addEventListener("click", function() {
+                    triggerAndroidCallback();
+                });
+
 			}
 		}
 	}
