@@ -82,16 +82,21 @@ img {
 
 .video-container{
     top: 0px;
+    overflow: hidden; 
 }
 
 
 html, body {
     margin: 0;
     padding: 0;
+    overflow: hidden; /* Prevent scrolling */
+    height: 100%; 
+    box-sizing: border-box;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box; /* Consistent box-sizing for all elements */
+
 }
