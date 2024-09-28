@@ -12,7 +12,7 @@ const MAX_DETECTIONS = 5;
 const THRESHOLD = 0.4;
 const MODEL_PATH = "./model/lush_naked.tflite";
 
-const FRAME_COUNT_THRESHOLD = 15;
+const FRAME_COUNT_THRESHOLD = 10;
 
 const SECONDS_THRESHOLD = 1000;
 
