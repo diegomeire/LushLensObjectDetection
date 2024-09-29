@@ -59,11 +59,21 @@ async function loadWebGPUBackend() {
     }
 }
 
+async function loadBestBackend() {
+    await tf.ready();
+  /*  if (await tf.backend().getAvailableBackends().includes('webgpu')) {
+        await tf.setBackend('webgpu');
+    } else {*/
+        await tf.setBackend('wasm'); // fallback to WASM if WebGPU not available
+    //}
+    console.log('Using backend:', tf.getBackend());
+}
+
 // Access the webcam and start object detection.
 async function startCamera() {
     const videoElement = document.querySelector('.video');
 	
-   // await loadWebGPUBackend(); // Ensure backend is loaded before starting
+   // await loadBestBackend(); // Ensure backend is loaded before starting
 
 	removeAllChildren();
 	
@@ -134,7 +144,7 @@ async function detect(videoElement) {
     
         // Update the FPS and Inference Time in the HTML
         const fpsCounter = document.getElementById('fps-counter');
-        fpsCounter.textContent = `WebGL FPS: ${fps} | Inference Time: ${inferenceTime.toFixed(2)} ms`;
+        fpsCounter.textContent = `CPU FPS: ${fps} | Inference Time: ${inferenceTime.toFixed(2)} ms`;
     
         // Continue to process the next frame
         requestAnimationFrame(processFrame);
