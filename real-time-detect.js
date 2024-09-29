@@ -63,7 +63,7 @@ async function loadWebGPUBackend() {
 async function startCamera() {
     const videoElement = document.querySelector('.video');
 	
-    //await loadWebGPUBackend(); // Ensure backend is loaded before starting
+    await loadWebGPUBackend(); // Ensure backend is loaded before starting
 
 	removeAllChildren();
 	
