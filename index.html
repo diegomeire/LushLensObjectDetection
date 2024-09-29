@@ -28,7 +28,7 @@
     </div>
 
     <div class="fps-counter" id="fps-counter" style="position: absolute; top: 10px; left: 10px; color: white; background-color: rgba(0,0,0,0.5); padding: 5px; font-size: 16px;">
-        WebGPU FPS: -- | Inference Time: -- ms
+        FPS: -- | Inference Time: -- ms
     </div>
 	
 	<div class="button-stack"> <!--style="display: flex; flex-direction: column; gap: 10px">-->
@@ -37,7 +37,9 @@
 		
 	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
     <!--<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-cpu"></script>-->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgpu/dist/tf-backend-webgpu.js"></script>
+    <!--<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgpu/dist/tf-backend-webgpu.js"></script>-->
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl@4.21.0/dist/tf-backend-webgl.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.9/dist/tf-tflite.min.js"></script>
     <script src="real-time-detect.js"></script>
 </body>

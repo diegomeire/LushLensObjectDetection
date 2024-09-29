@@ -63,7 +63,7 @@ async function loadWebGPUBackend() {
 async function startCamera() {
     const videoElement = document.querySelector('.video');
 	
-    await loadWebGPUBackend(); // Ensure backend is loaded before starting
+   // await loadWebGPUBackend(); // Ensure backend is loaded before starting
 
 	removeAllChildren();
 	
@@ -134,7 +134,7 @@ async function detect(videoElement) {
     
         // Update the FPS and Inference Time in the HTML
         const fpsCounter = document.getElementById('fps-counter');
-        fpsCounter.textContent = `WebGPU FPS: ${fps} | Inference Time: ${inferenceTime.toFixed(2)} ms`;
+        fpsCounter.textContent = `WebGL FPS: ${fps} | Inference Time: ${inferenceTime.toFixed(2)} ms`;
     
         // Continue to process the next frame
         requestAnimationFrame(processFrame);
