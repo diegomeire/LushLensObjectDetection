@@ -48,10 +48,23 @@ async function loadProductNames() {
     }
 }
 
+
+async function loadWebGPUBackend() {
+    try {
+        await tf.ready(); // Ensure TensorFlow.js is fully loaded
+        await tf.setBackend('webgpu'); // Set the WebGPU backend
+        console.log('WebGPU backend loaded successfully');
+    } catch (error) {
+        console.error('Error loading WebGPU backend:', error);
+    }
+}
+
 // Access the webcam and start object detection.
 async function startCamera() {
     const videoElement = document.querySelector('.video');
 	
+    //await loadWebGPUBackend(); // Ensure backend is loaded before starting
+
 	removeAllChildren();
 	
 	await loadProductNames();
@@ -75,6 +88,10 @@ async function removeAllChildren(){
 	}
 }
 
+let lastFrameTime = Date.now(); // Last frame timestamp for FPS calculation
+let inferenceTime = 0; // Inference time for each frame
+let fps = 0; // Calculated FPS
+
 // Detect objects in the video feed.
 async function detect(videoElement) {
     if (!objectDetector) {
@@ -83,27 +100,43 @@ async function detect(videoElement) {
 
     async function processFrame() {
 		
-	    const frame = await grabFrame(videoElement);
-
-	    if (!frame) {
-	        requestAnimationFrame(processFrame);
-	        return;
-	    }
-
-	    let input = tf.image.resizeBilinear(tf.browser.fromPixels(frame), [192, 192]);
-	    input = tf.cast(tf.expandDims(input), 'int32');
-
-	    // Run the inference and get the output tensors.
-	    let result = await objectDetector.predict(input);
-
-	    let boxes = Array.from(await result[Object.keys(result)[0]].data());
-	    let classes = Array.from(await result[Object.keys(result)[1]].data())
-	    let scores = Array.from(await result[Object.keys(result)[2]].data())
-	    let n = Array.from(await result[Object.keys(result)[3]].data())
-		
-	    inferenceResults(boxes, classes, scores, n, frame);
-			
-
+        const startFrameTime = Date.now(); // Start time of the frame
+    
+        const frame = await grabFrame(videoElement);
+    
+        if (!frame) {
+            requestAnimationFrame(processFrame);
+            return;
+        }
+    
+        let input = tf.image.resizeBilinear(tf.browser.fromPixels(frame), [192, 192]);
+        input = tf.cast(tf.expandDims(input), 'int32');
+    
+        const startInferenceTime = performance.now(); // Start time of inference
+        
+        // Run the inference and get the output tensors.
+        let result = await objectDetector.predict(input);
+    
+        const endInferenceTime = performance.now(); // End time of inference
+        inferenceTime = endInferenceTime - startInferenceTime; // Calculate inference time
+        
+        let boxes = Array.from(await result[Object.keys(result)[0]].data());
+        let classes = Array.from(await result[Object.keys(result)[1]].data());
+        let scores = Array.from(await result[Object.keys(result)[2]].data());
+        let n = Array.from(await result[Object.keys(result)[3]].data());
+    
+        inferenceResults(boxes, classes, scores, n, frame);
+    
+        // Calculate FPS
+        const now = Date.now();
+        fps = Math.round(1000 / (now - lastFrameTime));
+        lastFrameTime = now;
+    
+        // Update the FPS and Inference Time in the HTML
+        const fpsCounter = document.getElementById('fps-counter');
+        fpsCounter.textContent = `FPS: ${fps} | Inference Time: ${inferenceTime.toFixed(2)} ms`;
+    
+        // Continue to process the next frame
         requestAnimationFrame(processFrame);
     }
 
